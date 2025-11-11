@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="/assets/images/logo.png" />
+  <title>Survey Questionnaire – Human vs AI</title>
+
+  <link rel="stylesheet" href="/screens/styles.css" />
+  <script type="module" src="/screens/survey.js" defer></script>
+
+  <style>
+    body {
+      background: #f8fafc;
+      color: #1e293b;
+      font-family: "Inter", sans-serif;
+      margin: 0;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(255,255,255,0.9);
+      border-bottom: 1px solid #e2e8f0;
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: flex-start;
+      padding: 14px 24px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .btn {
+      background: #e94057;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn:hover { background: #d82d4c; }
+
+    .survey-header {
+      text-align: center;
+      margin-top: 120px;
+      margin-bottom: 40px;
+    }
+
+    .survey-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .survey-header p { color: #64748b; }
+
+    form {
+      max-width: 1000px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+      padding: 40px 50px;
+      margin: 40px auto;
+    }
+
+    section.question-group {
+      margin-bottom: 50px;
+    }
+
+    section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      border-left: 6px solid #e94057;
+      padding-left: 10px;
+      color: #0f172a;
+    }
+
+    label { font-weight: 500; display:block; margin-bottom:6px; }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f9fafb;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .radio-group label {
+      background: #f1f5f9;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .radio-group label:hover {
+      border-color: #e94057;
+      background: #fff;
+    }
+    .radio-group input { accent-color: #e94057; }
+
+    .scale-note { font-size: 0.9rem; color: #64748b; margin-bottom: 10px; }
+
+    .rating-scale {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+    }
+    .rating-scale label { text-align: center; font-size: 0.9rem; }
+
+    .thankyou {
+      text-align: center;
+      padding: 80px 20px;
+      display: none;
+    }
+    .thankyou.active {
+      display: block;
+      animation: fade-in 0.6s ease both;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <button class="btn" id="backCompare" style="background:#64748b;">← Back to Comparison</button>
+    </div>
+  </nav>
+
+  <div class="survey-header">
+    <h1>Survey Questionnaire</h1>
+    <p>Consumer Willingness to Pay for AI-Designed vs Human-Designed Mugs</p>
+  </div>
+
+  <form id="surveyForm">
+    <!-- Demographics -->
+    <section class="question-group">
+      <h2>Section 1: Demographics</h2>
+
+      <label>Age</label>
+      <input type="number" name="age" required />
+
+      <label>Gender</label>
+      <div class="radio-group">
+        <label><input type="radio" name="gender" value="Male" required> Male</label>
+        <label><input type="radio" name="gender" value="Female"> Female</label>
+        <label><input type="radio" name="gender" value="Other"> Other</label>
+        <label><input type="radio" name="gender" value="Prefer not to say"> Prefer not to say</label>
+      </div>
+
+      <label>Education Level</label>
+      <div class="radio-group">
+        <label><input type="radio" name="education" value="High School" required> High School</label>
+        <label><input type="radio" name="education" value="Undergraduate"> Undergraduate</label>
+        <label><input type="radio" name="education" value="Graduate"> Graduate</label>
+        <label><input type="radio" name="education" value="Postgraduate"> Postgraduate</label>
+        <label><input type="radio" name="education" value="Other"> Other</label>
+      </div>
+
+      <label>Occupation</label>
+      <input type="text" name="occupation" required />
+
+      <label>Monthly Income</label>
+      <div class="radio-group">
+        <label><input type="radio" name="income" value="< $500" required> &lt; $500</label>
+        <label><input type="radio" name="income" value="$500–$1000"> $500–$1000</label>
+        <label><input type="radio" name="income" value="$1000–$2000"> $1000–$2000</label>
+        <label><input type="radio" name="income" value="> $2000"> &gt; $2000</label>
+      </div>
+
+      <label>Country of Residence</label>
+      <input type="text" name="country" placeholder="e.g., Czech Republic, Kazakhstan" required />
+
+      <label>How familiar are you with Artificial Intelligence (AI)?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="aiKnowledge" value="Not familiar" required> Not familiar</label>
+        <label><input type="radio" name="aiKnowledge" value="Slightly familiar"> Slightly familiar</label>
+        <label><input type="radio" name="aiKnowledge" value="Moderately familiar"> Moderately familiar</label>
+        <label><input type="radio" name="aiKnowledge" value="Familiar"> Familiar</label>
+        <label><input type="radio" name="aiKnowledge" value="Very familiar"> Very familiar</label>
+      </div>
+    </section>
+
+    <!-- Dynamic sections -->
+    <section class="question-group">
+      <h2>Section 2: Awareness & Perceptions</h2>
+      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
+      <div id="awareness"></div>
+    </section>
+
+    <section class="question-group">
+      <h2>Section 3: Preferences & Attitudes</h2>
+      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
+      <div id="preferences"></div>
+    </section>
+
+    <section class="question-group">
+      <h2>Section 4: Willingness to Pay (WTP)</h2>
+      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
+      <div id="wtp"></div>
+
+      <label>Maximum Willingness to Pay (in local currency)</label>
+      <div style="display:flex;gap:20px;">
+        <div style="flex:1;">
+          <label>AI-designed mug</label>
+          <input type="number" name="aiMugPrice" required />
+        </div>
+        <div style="flex:1;">
+          <label>Human-designed mug</label>
+          <input type="number" name="humanMugPrice" required />
+        </div>
+      </div>
+    </section>
+
+    <section class="question-group">
+      <h2>Section 5: Comparative Analysis</h2>
+      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
+      <div id="comparative"></div>
+    </section>
+
+    <div class="text-center">
+      <button class="btn" type="submit">Submit Survey →</button>
+    </div>
+  </form>
+
+  <div class="thankyou" id="thankYou">
+    <h2>🎉 Thank you for completing the survey!</h2>
+    <p>Your feedback helps us understand the balance between AI and human creativity.</p>
+    <button class="btn" id="goHome">Return to Home</button>
+  </div>
+</body>
+</html>
