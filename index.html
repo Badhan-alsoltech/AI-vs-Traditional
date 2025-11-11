@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="assets/images/logo.png" />
+  <title>AI vs Traditional — Home</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="screens/styles.css" />
+
+  <!-- Three.js (CDN) -->
+  <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+
+  <!-- Scripts -->
+  <script type="module" src="screens/threeBackground.js" defer></script>
+  <script type="module" src="screens/index.js" defer></script>
+</head>
+<body>
+  <!-- Three.js canvas appears behind content -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="site-root">
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="logo">
+            <img src="assets/images/logo.png" alt="AI vs Traditional Logo" class="brand-logo" />
+          </div>
+          <div class="brand-title">AI vs Traditional</div>
+        </div>
+
+        <div class="nav-links" id="navLinks">
+          <button class="nav-btn" id="homeBtn">Home</button>
+          <button class="nav-btn" id="compareBtn">Compare</button>
+          <button class="nav-btn" id="galleryBtn">Gallery</button>
+          <button class="nav-btn" id="adminBtn">Admin</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero section">
+      <div class="container hero-grid">
+        <div class="hero-left reveal" data-anim="fade-in" data-delay="0">
+          <h1 class="headline">See the difference.</h1>
+          <p class="lead">Compare AI-generated products vs handcrafted items with real images, clear metrics, and authentic insights.</p>
+          <div class="hero-ctas">
+            <button class="btn primary" id="ctaCompare">
+              Start comparison <span class="arrow">→</span>
+            </button>
+            <button class="btn outline" id="ctaPreview">Preview</button>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="card-grid">
+            <article class="product-card tilt reveal" data-anim="scale-in" data-delay="150" data-tilt>
+              <div class="badge neutral">Non-AI</div>
+              <div class="media">
+                <img src="assets/images/vase_Human.jpg" alt="Non-AI sample" class="card-image" />
+              </div>
+              <div class="card-title">Handcrafted</div>
+            </article>
+
+            <article class="product-card tilt reveal" data-anim="scale-in" data-delay="250" data-tilt>
+              <div class="badge accent">AI</div>
+              <div class="media">
+                <img src="assets/images/vase_AI.jpg" alt="AI sample" class="card-image" />
+              </div>
+              <div class="card-title">AI-Generated</div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Features -->
+    <section class="features section">
+      <div class="container features-grid">
+        <div class="feature reveal" data-anim="fade-up" data-delay="0">
+          <div class="feature-icon">✨</div>
+          <h3>AI generation</h3>
+          <p>Instant creation, infinite variations, and automated refinement deliver products in minutes.</p>
+        </div>
+
+        <div class="feature reveal" data-anim="fade-up" data-delay="120">
+          <div class="feature-icon">🤲</div>
+          <h3>Handcrafted quality</h3>
+          <p>Traditional artisan methods bring unique character and authenticity to every piece.</p>
+        </div>
+
+        <div class="feature reveal" data-anim="fade-up" data-delay="240">
+          <div class="feature-icon">🎯</div>
+          <h3>Quality comparison</h3>
+          <p>Side-by-side analysis reveals texture, detail and durability differences.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Image Comparison -->
+    <section id="compare" class="compare section">
+      <div class="container text-center">
+        <div class="intro reveal" data-anim="fade-up" data-delay="0">
+          <h2>See the products side-by-side</h2>
+          <p class="muted">Scroll down to view AI and handcrafted items appear in harmony.</p>
+        </div>
+
+        <!-- new side-by-side layout -->
+        <div class="compare-row">
+          <div class="compare-col left-img reveal-side" id="leftCompare">
+            <img src="assets/images/mug_Human.jpg" alt="Non-AI handcrafted" />
+            <div class="label">Human Crafted</div>
+          </div>
+          <div class="compare-col right-img reveal-side" id="rightCompare">
+            <img src="assets/images/mug_AI.jpg" alt="AI generated" />
+            <div class="label accent">AI Generated</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Specs -->
+    <section class="specs section">
+      <div class="container specs-grid">
+        <div class="spec-card reveal" data-anim="slide-right" data-delay="0">
+          <h3>AI Generation</h3>
+          <div class="spec-list">
+            <div class="row"><span>Production time</span><strong>Minutes</strong></div>
+            <div class="row"><span>Variations</span><strong>Unlimited</strong></div>
+            <div class="row"><span>Cost</span><strong>Low</strong></div>
+            <div class="row"><span>Consistency</span><strong>High</strong></div>
+          </div>
+        </div>
+
+        <div class="spec-card reveal" data-anim="slide-left" data-delay="0">
+          <h3>Handcrafted</h3>
+          <div class="spec-list">
+            <div class="row"><span>Production time</span><strong>Days / Weeks</strong></div>
+            <div class="row"><span>Variations</span><strong>Limited</strong></div>
+            <div class="row"><span>Cost</span><strong>High</strong></div>
+            <div class="row"><span>Uniqueness</span><strong>Each piece unique</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta section">
+      <div class="container text-center reveal" data-anim="fade-up" data-delay="0">
+        <h2>Ready to explore?</h2>
+        <p class="muted">Start your detailed comparison and discover which approach fits your needs.</p>
+        <div class="hero-ctas">
+          <button class="btn primary" id="ctaCompare2">Start detailed comparison →</button>
+          <button class="btn outline" id="ctaGallery2">View Gallery</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container text-center muted">
+        © 2025 AI vs Traditional — Compare AI-generated and handcrafted products.
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
