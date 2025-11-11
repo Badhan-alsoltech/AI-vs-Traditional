@@ -1,11 +1,11 @@
 /* index.js
    -------------------------------------------------
    Handles:
-   - Navigation button actions
+   - Navigation button actions (local .html navigation)
    - Scroll reveal animations (fade, scale, slide)
    - Card tilt hover effects
    - Side-by-side image reveal animations
-   - Replaces blue/purple glow with clean fade visuals
+   - Clean white visuals (no purple glow)
    -------------------------------------------------
 */
 
@@ -18,34 +18,36 @@ const navigateTo = (path) => {
 document.getElementById("homeBtn")?.addEventListener("click", () =>
   window.scrollTo({ top: 0, behavior: "smooth" })
 );
+
+// ✅ Fixed: use relative paths (screens/...)
 document.getElementById("compareBtn")?.addEventListener("click", () =>
-  navigateTo("/compare")
+  navigateTo("screens/compare.html")
 );
 document.getElementById("startCompare")?.addEventListener("click", () =>
-  navigateTo("/compare")
+  navigateTo("screens/compare.html")
 );
 document.getElementById("ctaCompare")?.addEventListener("click", () =>
-  navigateTo("/compare")
+  navigateTo("screens/compare.html")
 );
 document.getElementById("ctaCompare2")?.addEventListener("click", () =>
-  navigateTo("/compare")
+  navigateTo("screens/compare.html")
 );
 
 document.getElementById("galleryBtn")?.addEventListener("click", () =>
-  navigateTo("/gallery")
+  navigateTo("screens/gallery.html")
 );
 document.getElementById("ctaGallery")?.addEventListener("click", () =>
-  navigateTo("/gallery")
+  navigateTo("screens/gallery.html")
 );
 document.getElementById("ctaGallery2")?.addEventListener("click", () =>
-  navigateTo("/gallery")
+  navigateTo("screens/gallery.html")
 );
 document.getElementById("ctaPreview")?.addEventListener("click", () =>
-  navigateTo("/gallery")
+  navigateTo("screens/gallery.html")
 );
 
 document.getElementById("adminBtn")?.addEventListener("click", () =>
-  navigateTo("/admin")
+  navigateTo("screens/admin.html")
 );
 
 // ---------- Smooth Scroll Reveal Animations ----------
@@ -59,7 +61,6 @@ const revealObserver = new IntersectionObserver((entries) => {
       const anim = el.dataset.anim || "";
       const delay = parseInt(el.dataset.delay || "0", 10);
 
-      // Animation variants
       const animations = {
         "fade-up": `fade-up 0.9s ease ${delay}ms both`,
         "slide-right": `slide-right 0.9s ease ${delay}ms both`,
