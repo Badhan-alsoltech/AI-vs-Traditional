@@ -94,6 +94,17 @@
       margin-bottom: 20px;
     }
 
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
     .radio-group {
       display: flex;
       flex-wrap: wrap;
@@ -157,7 +168,7 @@
       <h2>Section 1: Demographics</h2>
 
       <label>Age</label>
-      <input type="number" name="age" required />
+      <input type="number" name="age" min="0" step="1" inputmode="numeric" required />
 
       <label>Gender</label>
       <div class="radio-group">
@@ -222,11 +233,11 @@
       <div style="display:flex;gap:20px;">
         <div style="flex:1;">
           <label>AI-designed mug</label>
-          <input type="number" name="aiMugPrice" required />
+          <input type="number" name="aiMugPrice" min="0" step="any" inputmode="decimal" required />
         </div>
         <div style="flex:1;">
           <label>Human-designed mug</label>
-          <input type="number" name="humanMugPrice" required />
+          <input type="number" name="humanMugPrice" min="0" step="any" inputmode="decimal" required />
         </div>
       </div>
     </section>
@@ -247,5 +258,14 @@
     <p>Your feedback helps us understand the balance between AI and human creativity.</p>
     <button class="btn" id="goHome">Return to Home</button>
   </div>
+
+  <script>
+    // Prevent accidental number input scrolling
+    document.addEventListener("wheel", e => {
+      if (document.activeElement.type === "number") {
+        document.activeElement.blur();
+      }
+    }, { passive: false });
+  </script>
 </body>
 </html>
