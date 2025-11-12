@@ -2,10 +2,17 @@
 from flask import Flask, render_template, send_from_directory, abort, request, jsonify, Response
 import os, csv, io, datetime
 from supabase import create_client
+import os
+
 
 # === Supabase Configuration ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+
+print("DEBUG → SUPABASE_URL:", os.getenv("SUPABASE_URL"))
+print("DEBUG → SUPABASE_KEY:", os.getenv("SUPABASE_KEY")[:10], "...")
+
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise Exception("❌ Missing Supabase credentials. Add SUPABASE_URL and SUPABASE_KEY in Render Environment Variables.")
@@ -195,3 +202,4 @@ def test_connection():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
