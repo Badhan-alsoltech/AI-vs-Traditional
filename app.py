@@ -1,22 +1,21 @@
-# app.py — Supabase integrated version
+# app.py — Supabase integrated version (final optimized)
 from flask import Flask, render_template, send_from_directory, abort, request, jsonify, Response
 import os, csv, io, datetime
 from supabase import create_client
-import os
-
 
 # === Supabase Configuration ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-
-print("DEBUG → SUPABASE_URL:", os.getenv("SUPABASE_URL"))
-print("DEBUG → SUPABASE_KEY:", os.getenv("SUPABASE_KEY")[:10], "...")
-
+# Optional debugging (visible in Render logs)
+print("✅ Flask starting...")
+print("DEBUG → SUPABASE_URL:", "✅ Found" if SUPABASE_URL else "❌ Missing")
+print("DEBUG → SUPABASE_KEY:", "✅ Found" if SUPABASE_KEY else "❌ Missing")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise Exception("❌ Missing Supabase credentials. Add SUPABASE_URL and SUPABASE_KEY in Render Environment Variables.")
 
+# Initialize Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # === Flask App Config ===
@@ -33,13 +32,13 @@ app = Flask(
 def safe_int(v):
     try:
         return int(v) if v not in (None, "", "null") else None
-    except:
+    except Exception:
         return None
 
 def safe_float(v):
     try:
         return float(v) if v not in (None, "", "null") else None
-    except:
+    except Exception:
         return None
 
 
@@ -70,6 +69,7 @@ def api_submit_survey():
                 record[key] = v if v not in (None, "", "null") else None
 
         response = supabase.table("survey_responses").insert(record).execute()
+
         if response.data:
             return jsonify({"success": True, "message": "Survey saved to Supabase."}), 200
         else:
@@ -99,7 +99,7 @@ def api_admin_data():
         for section, cols in sections.items():
             vals = []
             for c in cols:
-                valid_nums = [r[c] for r in rows if r.get(c) is not None]
+                valid_nums = [float(r[c]) for r in rows if r.get(c) not in (None, "", "null")]
                 avg = round(sum(valid_nums) / len(valid_nums), 2) if valid_nums else 0
                 vals.append(avg)
             aggregates[section] = vals
@@ -114,13 +114,27 @@ def api_admin_data():
                 "occupation": r.get("occupation"),
                 "income": r.get("income"),
             }
-            for r in rows
+            for r in sorted(rows, key=lambda x: x.get("created_at") or "", reverse=True)
         ]
 
         return jsonify({"aggregates": aggregates, "submissions": submissions})
 
     except Exception as e:
         print("❌ Error fetching data:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+# ========== API: Admin Response (for "View" button) ==========
+@app.route("/api/admin/response/<int:resp_id>")
+def api_admin_response(resp_id):
+    """Fetch a single survey response by ID."""
+    try:
+        response = supabase.table("survey_responses").select("*").eq("id", resp_id).execute()
+        if not response.data:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify(response.data[0])
+    except Exception as e:
+        print("❌ Error fetching response:", e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -180,6 +194,10 @@ def survey():
 def questionnaire():
     return render_template("questionnaire.html")
 
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
 
 # ========== Assets ==========
 @app.route("/assets/<path:filename>")
@@ -202,4 +220,3 @@ def test_connection():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
