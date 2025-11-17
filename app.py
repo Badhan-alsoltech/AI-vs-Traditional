@@ -1,4 +1,7 @@
-# app.py — Supabase integrated version (final optimized)
+# ===============================
+# app.py — UPDATED for NEW SURVEY
+# ===============================
+
 from flask import Flask, render_template, send_from_directory, abort, request, jsonify, Response
 import os, csv, io, datetime
 from supabase import create_client
@@ -7,144 +10,165 @@ from supabase import create_client
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Optional debugging (visible in Render logs)
-print("✅ Flask starting...")
-print("DEBUG → SUPABASE_URL:", "✅ Found" if SUPABASE_URL else "❌ Missing")
-print("DEBUG → SUPABASE_KEY:", "✅ Found" if SUPABASE_KEY else "❌ Missing")
+print("Starting Flask...")
+print("SUPABASE_URL =", "OK" if SUPABASE_URL else "MISSING")
+print("SUPABASE_KEY =", "OK" if SUPABASE_KEY else "MISSING")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise Exception("❌ Missing Supabase credentials. Add SUPABASE_URL and SUPABASE_KEY in Render Environment Variables.")
+    raise Exception("Missing Supabase credentials.")
 
-# Initialize Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# === Flask App Config ===
+# === Flask Config ===
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-EXTERNAL_IMAGE_DIR = os.path.join(PROJECT_DIR, "assets", "images")
+app = Flask("HumanVsAI", static_folder="screens", template_folder="screens")
 
-app = Flask(
-    __name__,
-    static_folder="screens",
-    template_folder="screens"
-)
 
-# === Utility functions ===
+# === Utility ===
 def safe_int(v):
-    try:
-        return int(v) if v not in (None, "", "null") else None
-    except Exception:
-        return None
+    try: return int(v)
+    except: return None
 
 def safe_float(v):
-    try:
-        return float(v) if v not in (None, "", "null") else None
-    except Exception:
-        return None
+    try: return float(v)
+    except: return None
 
 
-# ========== API: Submit Survey ==========
+# ================================================
+#  API: SAVE SURVEY RESPONSE
+# ================================================
 @app.route("/api/submit_survey", methods=["POST"])
 def api_submit_survey():
-    """Handles survey submission and saves it to Supabase."""
     try:
         data = request.get_json(force=True)
-        if not isinstance(data, dict):
-            return jsonify({"error": "Invalid JSON payload"}), 400
 
-        # Mapping from frontend keys → DB columns
-        mapping = {
-            "aiKnowledge": "ai_knowledge",
-            "aiMugPrice": "ai_mug_price",
-            "humanMugPrice": "human_mug_price"
-        }
-
+        # Final database record
         record = {}
-        for k, v in data.items():
-            key = mapping.get(k, k)
-            if key.startswith(("awareness", "preference", "wtp", "comparative")) or key == "age":
-                record[key] = safe_int(v)
-            elif key in ("ai_mug_price", "human_mug_price"):
-                record[key] = safe_float(v)
-            else:
-                record[key] = v if v not in (None, "", "null") else None
 
-        response = supabase.table("survey_responses").insert(record).execute()
-
-        if response.data:
-            return jsonify({"success": True, "message": "Survey saved to Supabase."}), 200
-        else:
-            return jsonify({"error": "Failed to insert data"}), 500
-
-    except Exception as e:
-        print("❌ Error saving survey:", e)
-        return jsonify({"error": str(e)}), 500
-
-
-# ========== API: Admin Data ==========
-@app.route("/api/admin/data")
-def api_admin_data():
-    """Returns aggregate and submission data from Supabase."""
-    try:
-        response = supabase.table("survey_responses").select("*").execute()
-        rows = response.data or []
-
-        sections = {
-            "awareness": [f"awareness{i}" for i in range(1, 9)],
-            "preferences": [f"preference{i}" for i in range(1, 9)],
-            "wtp": [f"wtp{i}" for i in range(1, 9)],
-            "comparative": [f"comparative{i}" for i in range(1, 9)],
-        }
-
-        aggregates = {}
-        for section, cols in sections.items():
-            vals = []
-            for c in cols:
-                valid_nums = [float(r[c]) for r in rows if r.get(c) not in (None, "", "null")]
-                avg = round(sum(valid_nums) / len(valid_nums), 2) if valid_nums else 0
-                vals.append(avg)
-            aggregates[section] = vals
-
-        submissions = [
-            {
-                "id": r.get("id"),
-                "created_at": r.get("created_at"),
-                "age": r.get("age"),
-                "gender": r.get("gender"),
-                "education": r.get("education"),
-                "occupation": r.get("occupation"),
-                "income": r.get("income"),
-            }
-            for r in sorted(rows, key=lambda x: x.get("created_at") or "", reverse=True)
+        # Direct demographic fields
+        demographic_fields = [
+            "age", "gender", "education", "occupation",
+            "income", "country", "aiKnowledge"
         ]
 
-        return jsonify({"aggregates": aggregates, "submissions": submissions})
+        for f in demographic_fields:
+            if f == "aiKnowledge":
+                record["ai_knowledge"] = data.get(f)
+            else:
+                record[f] = data.get(f)
+
+        # Awareness (8)
+        for i in range(1, 9):
+            record[f"awareness{i}"] = safe_int(data.get(f"awareness{i}"))
+
+        # Prague WTP (4)
+        for i in range(1, 5):
+            record[f"prague_wtp{i}"] = safe_int(data.get(f"prague_wtp{i}"))
+
+        # Prague Prices
+        record["prague_ai_price"] = safe_float(data.get("pragueAiPrice"))
+        record["prague_human_price"] = safe_float(data.get("pragueHumanPrice"))
+
+        # New York WTP (4)
+        for i in range(1, 5):
+            record[f"newyork_wtp{i}"] = safe_int(data.get(f"newyork_wtp{i}"))
+
+        # New York Prices
+        record["newyork_ai_price"] = safe_float(data.get("newYorkAiPrice"))
+        record["newyork_human_price"] = safe_float(data.get("newYorkHumanPrice"))
+
+        # Insert into Supabase
+        res = supabase.table("survey_responses").insert(record).execute()
+
+        if res.data:
+            return jsonify({"success": True}), 200
+        return jsonify({"error": "Insert failed"}), 500
 
     except Exception as e:
-        print("❌ Error fetching data:", e)
+        print("Error saving:", e)
         return jsonify({"error": str(e)}), 500
 
 
-# ========== API: Admin Response (for "View" button) ==========
+# ================================================
+#  API: ADMIN AGGREGATES + SUBMISSION LIST
+# ================================================
+@app.route("/api/admin/data")
+def api_admin_data():
+    try:
+        res = supabase.table("survey_responses").select("*").execute()
+        rows = res.data or []
+
+        # Aggregate structure
+        aggregates = {
+            "awareness": [],
+            "prague_wtp": [],
+            "newyork_wtp": []
+        }
+
+        # Awareness averages
+        for i in range(1, 9):
+            col = f"awareness{i}"
+            vals = [safe_float(r[col]) for r in rows if r.get(col)]
+            avg = round(sum(vals) / len(vals), 2) if vals else 0
+            aggregates["awareness"].append(avg)
+
+        # Prague WTP averages
+        for i in range(1, 5):
+            col = f"prague_wtp{i}"
+            vals = [safe_float(r[col]) for r in rows if r.get(col)]
+            avg = round(sum(vals) / len(vals), 2) if vals else 0
+            aggregates["prague_wtp"].append(avg)
+
+        # New York WTP averages
+        for i in range(1, 5):
+            col = f"newyork_wtp{i}"
+            vals = [safe_float(r[col]) for r in rows if r.get(col)]
+            avg = round(sum(vals) / len(vals), 2) if vals else 0
+            aggregates["newyork_wtp"].append(avg)
+
+        # Submission table data
+        submissions = [{
+            "id": r["id"],
+            "created_at": r.get("created_at"),
+            "age": r.get("age"),
+            "gender": r.get("gender"),
+            "education": r.get("education"),
+            "occupation": r.get("occupation"),
+            "income": r.get("income")
+        } for r in rows]
+
+        return jsonify({
+            "aggregates": aggregates,
+            "submissions": submissions
+        })
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+# ================================================
+#  API: VIEW INDIVIDUAL RESPONSE
+# ================================================
 @app.route("/api/admin/response/<int:resp_id>")
 def api_admin_response(resp_id):
-    """Fetch a single survey response by ID."""
     try:
-        response = supabase.table("survey_responses").select("*").eq("id", resp_id).execute()
-        if not response.data:
+        res = supabase.table("survey_responses").select("*").eq("id", resp_id).execute()
+        if not res.data:
             return jsonify({"error": "Not found"}), 404
-        return jsonify(response.data[0])
+        return jsonify(res.data[0])
     except Exception as e:
-        print("❌ Error fetching response:", e)
         return jsonify({"error": str(e)}), 500
 
 
-# ========== API: Export Data ==========
+# ================================================
+#  EXPORT CSV
+# ================================================
 @app.route("/api/admin/export")
 def api_admin_export():
-    """Exports all survey data from Supabase as CSV."""
     try:
-        response = supabase.table("survey_responses").select("*").execute()
-        rows = response.data or []
+        res = supabase.table("survey_responses").select("*").execute()
+        rows = res.data or []
 
         output = io.StringIO()
         writer = csv.writer(output)
@@ -155,68 +179,47 @@ def api_admin_export():
             for r in rows:
                 writer.writerow([r.get(h) for h in headers])
         else:
-            writer.writerow(["No data found"])
-
-        csv_data = output.getvalue()
-        output.close()
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"survey_export_{timestamp}.csv"
+            writer.writerow(["No data"])
 
         return Response(
-            csv_data,
+            output.getvalue(),
             mimetype="text/csv",
-            headers={"Content-Disposition": f"attachment;filename={filename}"}
+            headers={"Content-Disposition": "attachment; filename=survey_export.csv"}
         )
     except Exception as e:
-        print("❌ Export error:", e)
         return jsonify({"error": str(e)}), 500
 
 
-# ========== Pages ==========
+# ================================================
+#  ROUTES → FRONTEND PAGES
+# ================================================
 @app.route("/")
-def home():
-    return render_template("index.html")
+def home(): return render_template("index.html")
 
 @app.route("/gallery")
-def gallery():
-    return render_template("gallery.html")
+def gallery(): return render_template("gallery.html")
 
 @app.route("/compare")
-def compare():
-    return render_template("compare.html")
+def compare(): return render_template("compare.html")
 
 @app.route("/survey")
-def survey():
-    return render_template("survey.html")
-
-@app.route("/questionnaire")
-def questionnaire():
-    return render_template("questionnaire.html")
+def survey(): return render_template("survey.html")
 
 @app.route("/admin")
-def admin():
-    return render_template("admin.html")
+def admin(): return render_template("admin.html")
 
 
-# ========== Assets ==========
+# ================================================
+#  STATIC FILES
+# ================================================
 @app.route("/assets/<path:filename>")
-def project_assets(filename):
+def assets(filename):
     return send_from_directory(os.path.join(PROJECT_DIR, "assets"), filename)
 
 
-# ========== Optional: Test Connection ==========
-@app.route("/api/test_connection")
-def test_connection():
-    """Check if Supabase connection is live."""
-    try:
-        test = supabase.table("survey_responses").select("*").limit(1).execute()
-        return jsonify({"connected": True, "rows_found": len(test.data)})
-    except Exception as e:
-        return jsonify({"connected": False, "error": str(e)}), 500
-
-
-# === Run server ===
+# ================================================
+#  RUN SERVER
+# ================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
