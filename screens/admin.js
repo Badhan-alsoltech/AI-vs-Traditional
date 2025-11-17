@@ -1,7 +1,8 @@
-// screens/admin.js
-// Admin Dashboard — charts, table, modal (with full questions & answers)
+// =========================
+// Admin Dashboard — Updated
+// =========================
 
-// === Question Texts ===
+// === Updated Question Sets ===
 const QUESTIONS = {
   awareness: [
     "The AI-designed mug appears to be visually creative and modern.",
@@ -13,77 +14,71 @@ const QUESTIONS = {
     "The human-designed mug looks more emotionally appealing to me.",
     "I believe AI design lacks emotional touch compared to human creativity."
   ],
-  preferences: [
-    "I prefer the AI-designed mug over the human-designed mug.",
-    "I would feel proud to own an AI-designed mug.",
-    "The AI-designed mug seems more innovative and unique.",
-    "The human-designed mug feels more reliable and practical.",
-    "I think AI-designed products are the future of modern design.",
-    "I would choose the human-designed mug because it reflects traditional aesthetics.",
-    "AI-designed products make shopping more exciting and futuristic.",
-    "I would recommend AI-designed products to others if the quality is good."
+
+  prague_wtp: [
+    "Are you willing to pay the same price for the AI-designed mug as for the human-designed mug?",
+    "Are you willing to pay more for the AI-designed mug if it offers innovative features?",
+    "Would you only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug?",
+    "Would you pay more for the AI-designed mug if it demonstrates superior quality during use?"
   ],
-  wtp: [
-    "I am willing to pay the same price for the AI-designed mug as for the human-designed mug.",
-    "I am willing to pay more for the AI-designed mug if it offers innovative features.",
-    "I would only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug.",
-    "I am more willing to pay for the AI-designed mug if it comes from a trusted or well-known brand.",
-    "I would pay more for the AI-designed mug if it is marketed as eco-friendly or sustainable.",
-    "I am more willing to pay for the AI-designed mug if it offers customization options (e.g., design personalization).",
-    "My willingness to pay depends on the intended use (e.g., gift, personal use, decoration).",
-    "I would pay more for the AI-designed mug if it demonstrates superior quality during use."
-  ],
-  comparative: [
-    "The AI-designed mug appears more functional and precise in its design.",
-    "The human-designed mug appears more creative and emotionally engaging.",
-    "The AI design positively influences my purchase decision.",
-    "The human-designed mug influences my purchase decision more than AI features.",
-    "I believe AI-generated designs will become increasingly accepted by consumers.",
-    "I would not buy AI-designed products if they seem too artificial or complex.",
-    "Overall, I am open to considering both AI-designed and human-designed products depending on context.",
-    "The AI design makes the mug look more innovative than traditional designs."
+
+  newyork_wtp: [
+    "Are you willing to pay the same price for the AI-designed mug as for the human-designed mug?",
+    "Are you willing to pay more for the AI-designed mug if it offers innovative features?",
+    "Would you only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug?",
+    "Would you pay more for the AI-designed mug if it demonstrates superior quality during use?"
   ]
 };
 
 let aggregatedData = null;
 let submissions = [];
 
-// === Load all data for admin dashboard ===
+// =========================
+// LOAD DASHBOARD DATA
+// =========================
 async function loadData() {
   try {
     const res = await fetch("/api/admin/data");
-    if (!res.ok) throw new Error("Failed to fetch admin data");
     const json = await res.json();
+
     aggregatedData = json.aggregates;
-    submissions = json.submissions || [];
+    submissions = json.submissions;
+
     updateMetrics();
     renderChart();
     renderTable();
   } catch (err) {
-    console.error(err);
-    alert("Error loading admin data: " + err.message);
+    alert("Failed to load admin data");
   }
 }
 
-// === Metrics summary cards ===
+// =========================
+// METRIC CARDS UPDATE
+// =========================
 function updateMetrics() {
   document.getElementById("totalSubmissions").textContent = submissions.length;
   document.getElementById("uniqueEmails").textContent = "—";
   document.getElementById("questionsAnswered").textContent = "All";
 }
 
-// === Chart ===
+// =========================
+// CHART RENDERING
+// =========================
 let groupedChart = null;
+
 function renderChart() {
   const ctx = document.getElementById("groupedChart").getContext("2d");
 
-  const labels = Array.from({ length: 8 }, (_, i) => `Q${i + 1}`);
+  const labels = [
+    ...Array.from({ length: 8 }, (_, i) => `A${i + 1}`),
+    ...Array.from({ length: 4 }, (_, i) => `P${i + 1}`),
+    ...Array.from({ length: 4 }, (_, i) => `NY${i + 1}`)
+  ];
 
   const datasets = [
-    { label: "Awareness", data: aggregatedData.awareness, backgroundColor: "#60a5fa" },
-    { label: "Preferences", data: aggregatedData.preferences, backgroundColor: "#34d399" },
-    { label: "WTP", data: aggregatedData.wtp, backgroundColor: "#f59e0b" },
-    { label: "Comparative", data: aggregatedData.comparative, backgroundColor: "#ef4444" }
+    { label: "Awareness", data: aggregatedData.awareness, backgroundColor: "#3b82f6" },
+    { label: "Prague WTP", data: aggregatedData.prague_wtp, backgroundColor: "#f59e0b" },
+    { label: "New York WTP", data: aggregatedData.newyork_wtp, backgroundColor: "#10b981" }
   ];
 
   if (groupedChart) groupedChart.destroy();
@@ -94,184 +89,136 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            title: (items) => `Question ${items[0].dataIndex + 1}`,
-            label: (item) => {
-              const section = item.dataset.label.toLowerCase();
-              const qIndex = item.dataIndex;
-              const questionText = QUESTIONS[section]?.[qIndex] || "";
-              return `${item.dataset.label}: ${item.formattedValue} — ${questionText}`;
-            }
-          }
-        },
-        legend: { position: "top" }
-      },
-      scales: {
-        y: { suggestedMin: 0, suggestedMax: 5, title: { display: true, text: "Mean (1–5)" } },
-        x: { title: { display: true, text: "Question number (1–8)" } }
-      }
+      scales: { y: { min: 0, max: 5 } }
     }
   });
 
-  // also populate the side list of mean values
   const list = document.getElementById("aggregatesList");
   list.innerHTML = "";
-  for (const [key, arr] of Object.entries(aggregatedData)) {
-    arr.forEach((val, idx) => {
-      const li = document.createElement("li");
-      li.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)} Q${idx + 1}: ${val}`;
-      list.appendChild(li);
-    });
-  }
+
+  aggregatedData.awareness.forEach((v, i) =>
+    appendList(list, `Awareness Q${i + 1}: ${v}`)
+  );
+  aggregatedData.prague_wtp.forEach((v, i) =>
+    appendList(list, `Prague Q${i + 1}: ${v}`)
+  );
+  aggregatedData.newyork_wtp.forEach((v, i) =>
+    appendList(list, `New York Q${i + 1}: ${v}`)
+  );
 }
 
-// === Table rendering ===
+function appendList(list, text) {
+  const li = document.createElement("li");
+  li.textContent = text;
+  list.appendChild(li);
+}
+
+// =========================
+// TABLE RENDERING
+// =========================
 function renderTable() {
   const tbody = document.querySelector("#submissionsTable tbody");
-  const emptyNote = document.getElementById("tableEmpty");
-  tbody.innerHTML = "";
+  const empty = document.getElementById("tableEmpty");
 
+  tbody.innerHTML = "";
   if (!submissions.length) {
-    emptyNote.style.display = "block";
+    empty.style.display = "block";
     return;
-  } else {
-    emptyNote.style.display = "none";
   }
+  empty.style.display = "none";
 
   submissions.forEach((row) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${row.age ?? ""}</td>
-      <td>${row.gender ?? ""}</td>
-      <td>${row.education ?? ""}</td>
-      <td>${row.occupation ?? ""}</td>
-      <td>${row.income ?? ""}</td>
-      <td>${row.created_at ?? ""}</td>
-      <td style="display:flex;gap:8px;">
-        <button class="view-btn" data-id="${row.id}">View</button>
-        <button class="delete-btn" disabled>Delete</button>
-      </td>
+      <td>${row.age || ""}</td>
+      <td>${row.gender || ""}</td>
+      <td>${row.education || ""}</td>
+      <td>${row.occupation || ""}</td>
+      <td>${row.income || ""}</td>
+      <td>${row.created_at || ""}</td>
+      <td><button class="view-btn" data-id="${row.id}">View</button></td>
     `;
     tbody.appendChild(tr);
   });
 
-  // attach view listeners
-  document.querySelectorAll(".view-btn").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-id");
-      await showModal(id);
-    });
-  });
+  document.querySelectorAll(".view-btn").forEach((b) =>
+    b.addEventListener("click", () => showModal(b.dataset.id))
+  );
 }
 
-// === Modal View (improved layout) ===
+// =========================
+// MODAL VIEW
+// =========================
 async function showModal(id) {
-  try {
-    const res = await fetch(`/api/admin/response/${id}`);
-    if (!res.ok) throw new Error("Failed to load response");
-    const data = await res.json();
+  const res = await fetch(`/api/admin/response/${id}`);
+  const data = await res.json();
 
-    const container = document.getElementById("modalContent");
-    container.innerHTML = "";
+  const container = document.getElementById("modalContent");
+  container.innerHTML = "";
 
-    const created = document.createElement("div");
-    created.innerHTML = `<strong>Submitted:</strong> ${data.created_at}`;
-    created.style.marginBottom = "12px";
-    container.appendChild(created);
+  appendSection(container, "Section 1: Demographics");
+  addField(container, "Age", data.age);
+  addField(container, "Gender", data.gender);
+  addField(container, "Education", data.education);
+  addField(container, "Occupation", data.occupation);
+  addField(container, "Income", data.income);
+  addField(container, "Country", data.country);
+  addField(container, "AI Familiarity", data.ai_knowledge);
 
-    // Demographics
-    const demographicsTitle = document.createElement("h4");
-    demographicsTitle.textContent = "Section 1: Demographics";
-    container.appendChild(demographicsTitle);
+  appendSection(container, "Section 2: Awareness");
+  QUESTIONS.awareness.forEach((q, i) =>
+    addQuestion(container, i + 1, q, data[`awareness${i + 1}`])
+  );
 
-    const demoKeys = [
-      ["Age", "age"],
-      ["Gender", "gender"],
-      ["Education", "education"],
-      ["Occupation", "occupation"],
-      ["Income", "income"],
-      ["Country", "country"],
-      ["Familiarity with AI", "ai_knowledge"]
-    ];
-    demoKeys.forEach(([label, key]) => {
-      const row = document.createElement("div");
-      row.className = "modal-field";
-      row.style.width = "100%";
-      row.innerHTML = `<strong>${label}:</strong><br>${data[key] ?? ""}`;
-      container.appendChild(row);
-    });
+  appendSection(container, "Section 3A: Prague – WTP");
+  QUESTIONS.prague_wtp.forEach((q, i) =>
+    addQuestion(container, i + 1, q, data[`prague_wtp${i + 1}`])
+  );
+  addField(container, "Prague – AI Price", data.prague_ai_price);
+  addField(container, "Prague – Human Price", data.prague_human_price);
 
-    // helper to add Q sections
-    function addQuestionSection(title, sectionKey, prefix) {
-      const titleEl = document.createElement("h4");
-      titleEl.textContent = title;
-      titleEl.style.marginTop = "16px";
-      container.appendChild(titleEl);
+  appendSection(container, "Section 3B: New York – WTP");
+  QUESTIONS.newyork_wtp.forEach((q, i) =>
+    addQuestion(container, i + 1, q, data[`newyork_wtp${i + 1}`])
+  );
+  addField(container, "New York – AI Price", data.newyork_ai_price);
+  addField(container, "New York – Human Price", data.newyork_human_price);
 
-      QUESTIONS[sectionKey].forEach((q, i) => {
-        const row = document.createElement("div");
-        row.className = "modal-field";
-        row.style.width = "100%";
-        const val = data[`${prefix}${i + 1}`];
-        const displayVal =
-          val === null || val === undefined || val === ""
-            ? "—"
-            : `${val} (${["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"][val-1] || ""})`;
-        row.innerHTML = `<strong>Q${i + 1}.</strong> ${q}<br><em>Response:</em> ${displayVal}`;
-        container.appendChild(row);
-      });
-    }
-
-    addQuestionSection("Section 2: Awareness & Perceptions", "awareness", "awareness");
-    addQuestionSection("Section 3: Preferences & Attitudes", "preferences", "preference");
-    addQuestionSection("Section 4: Willingness to Pay", "wtp", "wtp");
-
-    // price info
-    const priceTitle = document.createElement("h4");
-    priceTitle.textContent = "Maximum Willingness to Pay";
-    priceTitle.style.marginTop = "16px";
-    container.appendChild(priceTitle);
-
-    const priceRow1 = document.createElement("div");
-    priceRow1.className = "modal-field";
-    priceRow1.style.width = "100%";
-    priceRow1.innerHTML = `<strong>AI-designed mug:</strong> ${data.ai_mug_price ?? "—"}`;
-    container.appendChild(priceRow1);
-
-    const priceRow2 = document.createElement("div");
-    priceRow2.className = "modal-field";
-    priceRow2.style.width = "100%";
-    priceRow2.innerHTML = `<strong>Human-designed mug:</strong> ${data.human_mug_price ?? "—"}`;
-    container.appendChild(priceRow2);
-
-    addQuestionSection("Section 5: Comparative Analysis (AI vs Human Design)", "comparative", "comparative");
-
-    // show modal
-    const backdrop = document.getElementById("modalBackdrop");
-    backdrop.style.display = "flex";
-    document.getElementById("modalTitle").textContent = `Submission #${id} Details`;
-  } catch (err) {
-    console.error(err);
-    alert("Error loading submission details");
-  }
+  document.getElementById("modalTitle").textContent = "Submission Details";
+  document.getElementById("modalBackdrop").style.display = "flex";
 }
 
-// === Modal Close Handlers ===
-document.getElementById("closeModal")?.addEventListener("click", () => {
+function appendSection(c, title) {
+  c.innerHTML += `<h3 style="margin-top:20px;">${title}</h3>`;
+}
+
+function addField(c, label, value) {
+  c.innerHTML += `<p><strong>${label}:</strong> ${value ?? "—"}</p>`;
+}
+
+function addQuestion(c, num, text, val) {
+  const labels = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+  const meaning = val ? labels[val - 1] : "—";
+  c.innerHTML += `<p><strong>Q${num}.</strong> ${text}<br>Response: ${val ?? "—"} (${meaning})</p>`;
+}
+
+// =========================
+// EXPORT CSV
+// =========================
+document.getElementById("exportCsv").onclick = () => {
+  window.location.href = "/api/admin/export";
+};
+
+// CLOSE MODAL
+document.getElementById("closeModal").onclick = () => {
   document.getElementById("modalBackdrop").style.display = "none";
-});
-document.getElementById("modalBackdrop")?.addEventListener("click", (e) => {
+};
+
+document.getElementById("modalBackdrop").onclick = (e) => {
   if (e.target.id === "modalBackdrop") {
     document.getElementById("modalBackdrop").style.display = "none";
   }
-});
+};
 
-// === CSV Export ===
-document.getElementById("exportCsv")?.addEventListener("click", () => {
-  window.location.href = "/api/admin/export";
-});
-
-// === Init ===
+// INIT
 loadData();
