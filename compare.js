@@ -1,84 +1,272 @@
-/* compare.js
-   ----------------------------------------------
-   Handles navigation, scroll reveals, and tilt effects
-   ----------------------------------------------
-*/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="/assets/images/logo.png" />
+  <title>AI vs Traditional — Compare</title>
 
-// Navigation
-document.getElementById("backHome")?.addEventListener("click", () => {
-  window.location.href = "/";
-});
+  <link rel="stylesheet" href="/screens/styles.css" />
+  <script type="module" src="/screens/compare.js" defer></script>
 
-document.getElementById("toSurvey")?.addEventListener("click", () => {
-  window.location.href = "/survey";
-});
-
-// Scroll reveal
-const reveals = Array.from(document.querySelectorAll(".reveal"));
-const observerOptions = { threshold: 0.12 };
-
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      const anim = el.dataset.anim || "fade-up";
-      const delay = parseInt(el.dataset.delay || "0", 10);
-
-      if (anim === "fade-up") {
-        el.style.animation = `fade-up 0.9s ease ${delay}ms both`;
-      } else if (anim === "slide-right") {
-        el.style.animation = `slide-right 0.9s ease ${delay}ms both`;
-      } else if (anim === "slide-left") {
-        el.style.animation = `slide-left 0.9s ease ${delay}ms both`;
-      }
-
-      el.classList.add("in");
-      revealObserver.unobserve(el);
+  <style>
+    body {
+      background: #f7f8fa;
+      color: #1e293b;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
     }
-  });
-}, observerOptions);
 
-reveals.forEach((r) => revealObserver.observe(r));
+    canvas#bg-canvas { display: none !important; }
 
-// Tilt animation for compare cards
-function attachTilt(el) {
-  const maxTilt = 6;
-  const damp = 0.1;
-  let rx = 0, ry = 0, tx = 0, ty = 0, raf = null;
-
-  const rect = () => el.getBoundingClientRect();
-
-  function update() {
-    rx += (tx - rx) * damp;
-    ry += (ty - ry) * damp;
-    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-    if (Math.abs(tx - rx) > 0.05 || Math.abs(ty - ry) > 0.05) {
-      raf = requestAnimationFrame(update);
-    } else {
-      raf = null;
+    .nav {
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
-  }
 
-  function onMove(e) {
-    const r = rect();
-    const cx = (e.clientX ?? e.touches?.[0]?.clientX) - r.left;
-    const cy = (e.clientY ?? e.touches?.[0]?.clientY) - r.top;
-    const px = (cx / r.width) * 2 - 1;
-    const py = (cy / r.height) * 2 - 1;
-    tx = -py * maxTilt;
-    ty = px * maxTilt;
-    if (!raf) raf = requestAnimationFrame(update);
-  }
+    .nav-inner {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 14px 24px;
+      max-width: 1200px;
+      margin: auto;
+    }
 
-  function onLeave() {
-    tx = 0; ty = 0;
-    if (!raf) raf = requestAnimationFrame(update);
-  }
+    .btn { background: #e94057; color: #fff; border: none; padding: 12px 24px; font-weight: 600; border-radius: 10px; }
 
-  el.addEventListener("mousemove", onMove);
-  el.addEventListener("mouseleave", onLeave);
-  el.addEventListener("touchmove", onMove, { passive: true });
-  el.addEventListener("touchend", onLeave);
-}
+    .ghost { background: #64748b; }
 
-document.querySelectorAll(".tilt").forEach((el) => attachTilt(el));
+    .site-root { margin-top: 90px; }
+
+    .compare-header {
+      background: #ffffff;
+      text-align: center;
+      padding: 100px 20px 60px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .headline { font-size: 3rem; font-weight: 800; color: #0f172a; }
+    .lead { max-width: 720px; margin: 0 auto; color: #64748b; }
+
+    /* NEW PHOTO SECTION — 4 CARDS */
+    .four-card-row {
+      display: flex;
+      justify-content: center;
+      gap: 120px;
+      margin-top: 60px;
+      flex-wrap: nowrap;
+    }
+
+    .city-group {
+      display: flex;
+      flex-direction: column;
+      width: 420px;
+    }
+
+    .cards-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .city-cards-row {
+      display: flex;
+      gap: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="site-root">
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+      <div class="container nav-inner">
+        <button class="btn ghost" id="backHome">← Back to Home</button>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <section class="compare-header section">
+      <div class="container fade-in">
+        <h1 class="headline">Detailed Comparison</h1>
+        <p class="lead">Dive deep into the differences between AI and Human-Designed products.</p>
+      </div>
+    </section>
+
+    <!-- ⭐ UPDATED PHOTO SECTION ⭐ -->
+    <section class="compare-images section">
+      <div class="container">
+
+        <div class="four-card-row">
+
+          <!-- LEFT: NEW YORK -->
+          <div class="city-group">
+            <h2 class="cards-title">New York</h2>
+
+            <div class="city-cards-row">
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="150">
+                <div class="badge neutral">Non-AI</div>
+                <div class="media">
+                  <img src="/assets/images/New York mug Human.webp" class="card-image" />
+                </div>
+                <div class="card-title">Human-Designed</div>
+              </article>
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="250">
+                <div class="badge accent">AI</div>
+                <div class="media">
+                  <img src="/assets/images/New York mug AI.jpg" class="card-image" />
+                </div>
+                <div class="card-title">AI-designed</div>
+              </article>
+
+            </div>
+          </div>
+
+          <!-- RIGHT: PRAGUE -->
+          <div class="city-group">
+            <h2 class="cards-title">Prague</h2>
+
+            <div class="city-cards-row">
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="350">
+                <div class="badge neutral">Non-AI</div>
+                <div class="media">
+                  <img src="/assets/images/Prague mug Human.jpg" class="card-image" />
+                </div>
+                <div class="card-title">Human-Designed</div>
+              </article>
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="450">
+                <div class="badge accent">AI</div>
+                <div class="media">
+                  <img src="/assets/images/Prague mug AI.jpg" class="card-image" />
+                </div>
+                <div class="card-title">AI-designed</div>
+              </article>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ⭐ REST OF YOUR ORIGINAL PAGE (UNCHANGED) ⭐ -->
+
+    <!-- COMPARISON TABLE -->
+    <section class="compare-table section">
+      <div class="container">
+        <div class="table-wrapper reveal" data-anim="fade-up">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>AI Generated</th>
+                <th>Human-Designed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Production Time</td><td>Minutes</td><td>Days/Weeks</td></tr>
+              <tr><td>Cost per Unit</td><td>$5–15</td><td>$50–200</td></tr>
+              <tr><td>Variations</td><td>Unlimited</td><td>Limited</td></tr>
+              <tr><td>Consistency</td><td>Perfect</td><td>Unique Each</td></tr>
+              <tr><td>Scalability</td><td>Instant</td><td>Difficult</td></tr>
+              <tr><td>Material Quality</td><td>Standardized</td><td>Premium</td></tr>
+              <tr><td>Authenticity</td><td>Synthetic</td><td>Genuine</td></tr>
+              <tr><td>Environmental Impact</td><td>Low Carbon</td><td>Sustainable</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROS & CONS -->
+    <section class="pros-cons section">
+      <div class="container pros-grid">
+
+        <div class="pros-card reveal" data-anim="slide-right">
+          <h3>AI Generation</h3>
+          <h4>Pros</h4>
+          <ul>
+            <li>Instant production & delivery</li>
+            <li>Unlimited design variations</li>
+            <li>Perfect consistency</li>
+            <li>Lower environmental footprint</li>
+            <li>Affordable pricing</li>
+          </ul>
+
+          <h4>Cons</h4>
+          <ul>
+            <li>Lacks unique character</li>
+            <li>Limited material authenticity</li>
+            <li>May feel synthetic</li>
+          </ul>
+        </div>
+
+        <div class="pros-card reveal" data-anim="slide-left">
+          <h3>Human-Designed</h3>
+          <h4>Pros</h4>
+          <ul>
+            <li>Unique character in every piece</li>
+            <li>Premium material quality</li>
+            <li>Authentic craftsmanship</li>
+            <li>Supports traditional artisans</li>
+            <li>Higher perceived value</li>
+          </ul>
+
+          <h4>Cons</h4>
+          <ul>
+            <li>Higher cost</li>
+            <li>Longer production time</li>
+            <li>Difficult to scale</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta section">
+      <div class="container text-center reveal">
+        <h2>What's your opinion?</h2>
+        <p class="muted">Help us understand consumer preferences between AI and human-designed products.</p>
+        <button class="btn primary" id="toSurvey">Share Your Opinion →</button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container text-center muted">
+        © 2025 AI vs Traditional — Compare AI-designed and Human-Designed products.
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    document.getElementById("backHome").addEventListener("click", () => {
+      window.location.href = "/";
+    });
+
+    document.getElementById("toSurvey").addEventListener("click", () => {
+      window.location.href = "/survey";
+    });
+  </script>
+
+</body>
+</html>
