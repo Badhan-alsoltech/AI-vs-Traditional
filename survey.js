@@ -1,3 +1,6 @@
+/**************************************
+ * QUESTION ARRAYS
+ **************************************/
 const awarenessQs = [
   "The AI-designed mug appears to be visually creative and modern.",
   "The human-designed mug appears to be more authentic and handcrafted.",
@@ -9,89 +12,111 @@ const awarenessQs = [
   "I believe AI design lacks emotional touch compared to human creativity."
 ];
 
-const preferenceQs = [
-  "I prefer the AI-designed mug over the human-designed mug.",
-  "I would feel proud to own an AI-designed mug.",
-  "The AI-designed mug seems more innovative and unique.",
-  "The human-designed mug feels more reliable and practical.",
-  "I think AI-designed products are the future of modern design.",
-  "I would choose the human-designed mug because it reflects traditional aesthetics.",
-  "AI-designed products make shopping more exciting and futuristic.",
-  "I would recommend AI-designed products to others if the quality is good."
+const pragueWtpQs = [
+  "Are you willing to pay the same price for the AI-designed mug as for the human-designed mug?",
+  "Are you willing to pay more for the AI-designed mug if it offers innovative features?",
+  "Would you only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug?",
+  "Would you pay more for the AI-designed mug if it demonstrates superior quality during use?"
 ];
 
-const wtpQs = [
-  "I am willing to pay the same price for the AI-designed mug as for the human-designed mug.",
-  "I am willing to pay more for the AI-designed mug if it offers innovative features.",
-  "I would only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug.",
-  "I am more willing to pay for the AI-designed mug if it comes from a trusted or well-known brand.",
-  "I would pay more for the AI-designed mug if it is marketed as eco-friendly or sustainable.",
-  "I am more willing to pay for the AI-designed mug if it offers customization options (e.g., design personalization).",
-  "My willingness to pay depends on the intended use (e.g., gift, personal use, decoration).",
-  "I would pay more for the AI-designed mug if it demonstrates superior quality during use."
+const newyorkWtpQs = [
+  "Are you willing to pay the same price for the AI-designed mug as for the human-designed mug?",
+  "Are you willing to pay more for the AI-designed mug if it offers innovative features?",
+  "Would you only purchase the AI-designed mug if it is competitively priced compared to the human-designed mug?",
+  "Would you pay more for the AI-designed mug if it demonstrates superior quality during use?"
 ];
 
-const comparativeQs = [
-  "The AI-designed mug appears more functional and precise in its design.",
-  "The human-designed mug appears more creative and emotionally engaging.",
-  "The AI design positively influences my purchase decision.",
-  "The human-designed mug influences my purchase decision more than AI features.",
-  "I believe AI-generated designs will become increasingly accepted by consumers.",
-  "I would not buy AI-designed products if they seem too artificial or complex.",
-  "Overall, I am open to considering both AI-designed and human-designed products depending on context.",
-  "The AI design makes the mug look more innovative than traditional designs."
-];
-
-function renderQuestions(containerId, prefix, questions) {
+/**************************************
+ * RENDER FUNCTIONS
+ **************************************/
+function renderScaleQuestions(containerId, prefix, list) {
   const container = document.getElementById(containerId);
-  questions.forEach((q, i) => {
+
+  list.forEach((q, i) => {
+    const number = i + 1;
     const div = document.createElement("div");
-    div.style.marginBottom = "18px";
+    div.style.marginBottom = "14px";
+
     const label = document.createElement("label");
-    label.textContent = `${i + 1}. ${q}`;
+    label.textContent = `${number}. ${q}`;
+    div.appendChild(label);
+
     const scale = document.createElement("div");
     scale.className = "rating-scale";
-    for (let r = 1; r <= 5; r++) {
-      const lbl = document.createElement("label");
-      lbl.innerHTML = `<input type="radio" name="${prefix}${i + 1}" value="${r}" required> ${r}`;
-      scale.appendChild(lbl);
+
+    for (let v = 1; v <= 5; v++) {
+      const opt = document.createElement("label");
+      opt.innerHTML = `<input type="radio" name="${prefix}${number}" value="${v}" required> ${v}`;
+      scale.appendChild(opt);
     }
-    div.appendChild(label);
+
     div.appendChild(scale);
     container.appendChild(div);
   });
 }
 
-renderQuestions("awareness", "awareness", awarenessQs);
-renderQuestions("preferences", "preference", preferenceQs);
-renderQuestions("wtp", "wtp", wtpQs);
-renderQuestions("comparative", "comparative", comparativeQs);
+// render dynamic questions
+renderScaleQuestions("awarenessContainer", "awareness", awarenessQs);
+renderScaleQuestions("pragueWtpContainer", "prague_wtp", pragueWtpQs);
+renderScaleQuestions("newyorkWtpContainer", "newyork_wtp", newyorkWtpQs);
 
+/**************************************
+ * FORM SUBMIT LOGIC
+ **************************************/
 const form = document.getElementById("surveyForm");
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const formData = new FormData(form);
-  const data = {};
-  for (const [k, v] of formData.entries()) data[k] = v;
 
+  const formData = new FormData(form);
+
+  // Country "Other" logic
+  const selectedCountry = formData.get("country");
+  if (selectedCountry === "Other") {
+    const otherText = formData.get("countryOther");
+    if (otherText && otherText.trim() !== "") {
+      formData.set("country", otherText.trim());
+    }
+  }
+  formData.delete("countryOther");
+
+  // Convert FormData → JSON
+  const data = {};
+  for (const [key, value] of formData.entries()) {
+    if (key.match(/price$/)) {
+      data[key] = parseFloat(value);
+    } else if (key.match(/(awareness|prague_wtp|newyork_wtp)\d+/)) {
+      data[key] = parseInt(value, 10);
+    } else if (key === "age") {
+      data[key] = parseInt(value, 10);
+    } else {
+      data[key] = value;
+    }
+  }
+
+  // POST request
   try {
     const res = await fetch("/api/submit_survey", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    const result = await res.json();
+
     if (res.ok) {
-      form.style.display = "none";
+      document.getElementById("surveyForm").style.display = "none";
       document.getElementById("thankYou").classList.add("active");
     } else {
-      alert("Error saving data: " + result.error);
+      const error = await res.json();
+      alert("Error: " + error.error);
     }
   } catch (err) {
     alert("Network error: " + err.message);
   }
 });
 
+/**************************************
+ * NAVIGATION BUTTONS
+ **************************************/
 document.getElementById("goHome")?.addEventListener("click", () => {
   window.location.href = "/";
 });
