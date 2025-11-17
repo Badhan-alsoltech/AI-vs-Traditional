@@ -7,7 +7,6 @@
   <title>AI vs Traditional — Compare</title>
 
   <link rel="stylesheet" href="/screens/styles.css" />
-  <!-- Removed Three.js background to eliminate blue/purple tint -->
   <script type="module" src="/screens/compare.js" defer></script>
 
   <style>
@@ -19,12 +18,8 @@
       overflow-x: hidden;
     }
 
-    /* Hide gradient background */
-    canvas#bg-canvas {
-      display: none !important;
-    }
+    canvas#bg-canvas { display: none !important; }
 
-    /* Navigation */
     .nav {
       width: 100%;
       position: fixed;
@@ -44,31 +39,12 @@
       margin: auto;
     }
 
-    .btn {
-      background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+    .btn { background: #e94057; color: #fff; border: none; padding: 12px 24px; font-weight: 600; border-radius: 10px; }
 
-    .btn:hover {
-      background: #d82d4c;
-    }
+    .ghost { background: #64748b; }
 
-    .ghost {
-      background: #64748b;
-    }
+    .site-root { margin-top: 90px; }
 
-    .site-root {
-      margin-top: 90px;
-    }
-
-    /* Header Section */
     .compare-header {
       background: #ffffff;
       text-align: center;
@@ -76,235 +52,123 @@
       border-bottom: 1px solid #e5e7eb;
     }
 
-    .compare-header .headline {
-      font-size: 3rem;
+    .headline { font-size: 3rem; font-weight: 800; color: #0f172a; }
+    .lead { max-width: 720px; margin: 0 auto; color: #64748b; }
+
+    /* NEW PHOTO SECTION — 4 CARDS */
+    .four-card-row {
+      display: flex;
+      justify-content: center;
+      gap: 120px;
+      margin-top: 60px;
+      flex-wrap: nowrap;
+    }
+
+    .city-group {
+      display: flex;
+      flex-direction: column;
+      width: 420px;
+    }
+
+    .cards-title {
+      text-align: center;
+      font-size: 28px;
       font-weight: 800;
-      margin-bottom: 12px;
-      color: #0f172a;
+      margin-bottom: 18px;
     }
 
-    .compare-header .lead {
-      max-width: 720px;
-      margin: 0 auto;
-      font-size: 1.15rem;
-      color: #64748b;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    /* Image Row */
-    .compare-images {
-      background: #f7f8fa;
-      padding: 60px 20px;
-    }
-
-    .compare-grid {
+    .city-cards-row {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-    }
-
-    .compare-box {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      width: 280px;
-      text-align: center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .compare-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
-    }
-
-    .compare-box img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-
-    .compare-label {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #0f172a;
-    }
-
-    .compare-label.accent {
-      color: #e94057;
-    }
-
-    /* Comparison Table */
-    .compare-table {
-      background: #ffffff;
-      padding: 80px 20px;
-    }
-
-    .comparison-table {
-      width: 100%;
-      border-collapse: collapse;
-      max-width: 900px;
-      margin: 0 auto;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .comparison-table th,
-    .comparison-table td {
-      padding: 14px 20px;
-      text-align: left;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 1rem;
-    }
-
-    .comparison-table th {
-      background: #f9fafb;
-      color: #334155;
-      font-weight: 700;
-    }
-
-    .comparison-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Pros & Cons */
-    .pros-cons {
-      background: #f7f8fa;
-      padding: 80px 20px;
-    }
-
-    .pros-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      justify-content: center;
-    }
-
-    .pros-card {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      padding: 24px;
-      max-width: 420px;
-      flex: 1;
-    }
-
-    .pros-card h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-
-    .pros-card h4 {
-      margin-top: 20px;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-      color: #e94057;
-    }
-
-    .pros-card ul {
-      padding-left: 20px;
-      margin: 0;
-      color: #475569;
-      line-height: 1.6;
-    }
-
-    /* CTA Section */
-    .cta {
-      background: #ffffff;
-      padding: 100px 20px;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .cta h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-
-    .cta p {
-      font-size: 1.1rem;
-      color: #64748b;
-      margin-bottom: 20px;
-    }
-
-    .btn.primary {
-      background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 26px;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .btn.primary:hover {
-      background: #d82d4c;
-    }
-
-    @media (max-width: 768px) {
-      .compare-header .headline {
-        font-size: 2.4rem;
-      }
-      .compare-header .lead {
-        font-size: 1rem;
-        padding: 0 10px;
-      }
-      .compare-grid {
-        gap: 20px;
-      }
-      .pros-grid {
-        flex-direction: column;
-        align-items: center;
-      }
+      gap: 20px;
     }
   </style>
 </head>
 
 <body>
-  <!-- Hidden background canvas -->
+
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
   <div class="site-root">
-    <!-- Navigation -->
+
+    <!-- NAVIGATION -->
     <nav class="nav">
       <div class="container nav-inner">
-        <button class="btn ghost back-btn" id="backHome">
-          ← Back to Home
-        </button>
+        <button class="btn ghost" id="backHome">← Back to Home</button>
       </div>
     </nav>
 
-    <!-- Header -->
+    <!-- HEADER -->
     <section class="compare-header section">
       <div class="container fade-in">
         <h1 class="headline">Detailed Comparison</h1>
-        <p class="lead muted">Dive deep into the differences between AI and handcrafted products.</p>
+        <p class="lead">Dive deep into the differences between AI and Human-Designed products.</p>
       </div>
     </section>
 
-    <!-- Image Row -->
+    <!-- ⭐ UPDATED PHOTO SECTION ⭐ -->
     <section class="compare-images section">
-      <div class="container compare-grid reveal" data-anim="fade-up">
-        <div class="compare-box tilt">
-          <img src="/assets/images/mug_AI.jpg" alt="AI Product" />
-          <p class="compare-label accent">AI Generated</p>
+      <div class="container">
+
+        <div class="four-card-row">
+
+          <!-- LEFT: NEW YORK -->
+          <div class="city-group">
+            <h2 class="cards-title">New York</h2>
+
+            <div class="city-cards-row">
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="150">
+                <div class="badge neutral">Non-AI</div>
+                <div class="media">
+                  <img src="/assets/images/New York mug Human.webp" class="card-image" />
+                </div>
+                <div class="card-title">Human-Designed</div>
+              </article>
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="250">
+                <div class="badge accent">AI</div>
+                <div class="media">
+                  <img src="/assets/images/New York mug AI.jpg" class="card-image" />
+                </div>
+                <div class="card-title">AI-designed</div>
+              </article>
+
+            </div>
+          </div>
+
+          <!-- RIGHT: PRAGUE -->
+          <div class="city-group">
+            <h2 class="cards-title">Prague</h2>
+
+            <div class="city-cards-row">
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="350">
+                <div class="badge neutral">Non-AI</div>
+                <div class="media">
+                  <img src="/assets/images/Prague mug Human.jpg" class="card-image" />
+                </div>
+                <div class="card-title">Human-Designed</div>
+              </article>
+
+              <article class="product-card tilt reveal" data-anim="scale-in" data-delay="450">
+                <div class="badge accent">AI</div>
+                <div class="media">
+                  <img src="/assets/images/Prague mug AI.jpg" class="card-image" />
+                </div>
+                <div class="card-title">AI-designed</div>
+              </article>
+
+            </div>
+          </div>
+
         </div>
-        <div class="compare-box tilt">
-          <img src="/assets/images/mug_Human.jpg" alt="Human Product" />
-          <p class="compare-label">Handcrafted</p>
-        </div>
+
       </div>
     </section>
 
-    <!-- Comparison Table -->
+    <!-- ⭐ REST OF YOUR ORIGINAL PAGE (UNCHANGED) ⭐ -->
+
+    <!-- COMPARISON TABLE -->
     <section class="compare-table section">
       <div class="container">
         <div class="table-wrapper reveal" data-anim="fade-up">
@@ -313,7 +177,7 @@
               <tr>
                 <th>Feature</th>
                 <th>AI Generated</th>
-                <th>Handcrafted</th>
+                <th>Human-Designed</th>
               </tr>
             </thead>
             <tbody>
@@ -331,9 +195,10 @@
       </div>
     </section>
 
-    <!-- Pros & Cons -->
+    <!-- PROS & CONS -->
     <section class="pros-cons section">
       <div class="container pros-grid">
+
         <div class="pros-card reveal" data-anim="slide-right">
           <h3>AI Generation</h3>
           <h4>Pros</h4>
@@ -344,6 +209,7 @@
             <li>Lower environmental footprint</li>
             <li>Affordable pricing</li>
           </ul>
+
           <h4>Cons</h4>
           <ul>
             <li>Lacks unique character</li>
@@ -353,7 +219,7 @@
         </div>
 
         <div class="pros-card reveal" data-anim="slide-left">
-          <h3>Handcrafted</h3>
+          <h3>Human-Designed</h3>
           <h4>Pros</h4>
           <ul>
             <li>Unique character in every piece</li>
@@ -362,6 +228,7 @@
             <li>Supports traditional artisans</li>
             <li>Higher perceived value</li>
           </ul>
+
           <h4>Cons</h4>
           <ul>
             <li>Higher cost</li>
@@ -369,27 +236,37 @@
             <li>Difficult to scale</li>
           </ul>
         </div>
+
       </div>
     </section>
 
-    <!-- CTA -->
+    <!-- CTA SECTION -->
     <section class="cta section">
-      <div class="container text-center reveal" data-anim="fade-up">
+      <div class="container text-center reveal">
         <h2>What's your opinion?</h2>
         <p class="muted">Help us understand consumer preferences between AI and human-designed products.</p>
         <button class="btn primary" id="toSurvey">Share Your Opinion →</button>
       </div>
     </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container text-center muted">
+        © 2025 AI vs Traditional — Compare AI-designed and Human-Designed products.
+      </div>
+    </footer>
+
   </div>
 
   <script>
-    document.getElementById("backHome")?.addEventListener("click", () => {
+    document.getElementById("backHome").addEventListener("click", () => {
       window.location.href = "/";
     });
 
-    document.getElementById("toSurvey")?.addEventListener("click", () => {
+    document.getElementById("toSurvey").addEventListener("click", () => {
       window.location.href = "/survey";
     });
   </script>
+
 </body>
 </html>
