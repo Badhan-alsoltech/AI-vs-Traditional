@@ -1,273 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="icon" type="image/png" href="/assets/images/logo.png" />
-  <title>AI vs Traditional — Gallery</title>
+/* gallery.js
+   -----------------------------------------------------
+   Handles:
+   - Navigation buttons
+   - Scroll reveal animations
+   - Card tilt effects
+   - Redirect to compare page
+   -----------------------------------------------------
+*/
 
-  <link rel="stylesheet" href="/screens/styles.css" />
-  <!-- Removed three.js background script to eliminate color tint -->
-  <script type="module" src="/screens/gallery.js" defer></script>
+// Navigation
+document.getElementById("backHome")?.addEventListener("click", () => {
+  window.location.href = "/";
+});
 
-  <style>
-    body {
-      background: #f7f8fa;
-      color: #1e293b;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      overflow-x: hidden;
-    }
+document.getElementById("toCompare")?.addEventListener("click", () => {
+  window.location.href = "/compare";
+});
 
-    /* Hide any background canvas (used to create gradient) */
-    canvas#bg-canvas {
-      display: none !important;
-    }
+// Scroll reveal
+const reveals = Array.from(document.querySelectorAll(".reveal"));
+const observerOptions = { threshold: 0.12 };
 
-    /* === Navigation === */
-    .nav {
-      width: 100%;
-      position: fixed;
-      top: 0;
-      z-index: 1000;
-      background: #ffffff; /* Clean white */
-      border-bottom: 1px solid #e5e7eb;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    }
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const anim = el.dataset.anim || "fade-up";
+      const delay = parseInt(el.dataset.delay || "0", 10);
 
-    .nav-inner {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 14px 24px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .btn {
-      background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .btn:hover {
-      background: #d82d4c;
-    }
-
-    .ghost {
-      background: #64748b;
-    }
-
-    .site-root {
-      margin-top: 90px;
-    }
-
-    /* === Header Section === */
-    .gallery-header {
-      background: #ffffff; /* clean white to remove blue/purple tint */
-      text-align: center;
-      padding: 100px 20px 60px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .gallery-header .headline {
-      font-size: 3rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-
-    .gallery-header .lead {
-      max-width: 720px;
-      margin: 0 auto;
-      font-size: 1.15rem;
-      color: #64748b;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    /* === Gallery Section === */
-    .gallery-grid {
-      background: #f7f8fa;
-      padding: 60px 0;
-    }
-
-    .grid-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 24px;
-    }
-
-    .gallery-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      padding: 16px;
-      width: 240px;
-      text-align: center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .gallery-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
-    }
-
-    .gallery-card img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-
-    .gallery-card p {
-      font-size: 1rem;
-      color: #0f172a;
-      margin: 0;
-    }
-
-    /* === CTA Section === */
-    .cta {
-      background: #ffffff;
-      padding: 100px 20px;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .cta h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-
-    .cta p {
-      font-size: 1.1rem;
-      color: #64748b;
-      margin-bottom: 20px;
-    }
-
-    .btn.primary {
-      background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 26px;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .btn.primary:hover {
-      background: #d82d4c;
-    }
-
-    @media (max-width: 768px) {
-      .gallery-header .headline {
-        font-size: 2.4rem;
+      if (anim === "fade-up") {
+        el.style.animation = `fade-up 0.9s ease ${delay}ms both`;
+      } else if (anim === "scale-in") {
+        el.style.animation = `scale-in 0.9s cubic-bezier(.22,1,.36,1) ${delay}ms both`;
+      } else {
+        el.style.animation = `fade-in 0.9s ease ${delay}ms both`;
       }
-      .gallery-header .lead {
-        font-size: 1rem;
-        padding: 0 10px;
-      }
+
+      el.classList.add("in");
+      revealObserver.unobserve(el);
     }
-  </style>
-</head>
+  });
+}, observerOptions);
 
-<body>
-  <!-- Removed blue/purple canvas background -->
-  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+reveals.forEach((r) => revealObserver.observe(r));
 
-  <div class="site-root">
-    <!-- Navigation -->
-    <nav class="nav">
-      <div class="container nav-inner">
-        <button class="btn ghost back-btn" id="backHome">
-          ← Back to Home
-        </button>
-      </div>
-    </nav>
+// Tilt animation for gallery cards
+function attachTilt(el) {
+  const maxTilt = 6;
+  const damp = 0.1;
+  let rx = 0, ry = 0, tx = 0, ty = 0, raf = null;
 
-    <!-- Header -->
-    <section class="gallery-header section">
-      <div class="container fade-in">
-        <h1 class="headline">Product Gallery</h1>
-        <p class="lead">
-          Explore our complete collection of AI-generated and handcrafted products.
-          Compare quality, style, and craftsmanship side by side.
-        </p>
-      </div>
-    </section>
+  const rect = () => el.getBoundingClientRect();
 
-    <!-- Gallery Section -->
-    <section class="gallery-grid section">
-      <div class="container">
-        <h2 class="text-center mb-6 text-lg muted fade-in">AI-Generated Products</h2>
-        <div class="grid-row reveal" data-anim="fade-up">
-          <div class="gallery-card tilt">
-            <img src="/assets/images/vase_AI.jpg" alt="AI Vase" />
-            <p>AI Vase</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/mug_AI.jpg" alt="AI Mug" />
-            <p>AI Mug</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/tea_AI.jpg" alt="AI Tea Cup" />
-            <p>AI Tea Set</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/tshirt_AI.jpg" alt="AI T-shirt" />
-            <p>AI T-shirt</p>
-          </div>
-        </div>
+  function update() {
+    rx += (tx - rx) * damp;
+    ry += (ty - ry) * damp;
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    if (Math.abs(tx - rx) > 0.05 || Math.abs(ty - ry) > 0.05) {
+      raf = requestAnimationFrame(update);
+    } else {
+      raf = null;
+    }
+  }
 
-        <h2 class="text-center mt-20 mb-6 text-lg muted fade-in">Handcrafted Products</h2>
-        <div class="grid-row reveal" data-anim="fade-up">
-          <div class="gallery-card tilt">
-            <img src="/assets/images/vase_Human.jpg" alt="Human Vase" />
-            <p>Human Vase</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/mug_Human.jpg" alt="Human Mug" />
-            <p>Human Mug</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/tea_Human.jpg" alt="Human Tea Cup" />
-            <p>Human Tea Set</p>
-          </div>
-          <div class="gallery-card tilt">
-            <img src="/assets/images/tshirt_Human.jpg" alt="Human T-shirt" />
-            <p>Human T-shirt</p>
-          </div>
-        </div>
-      </div>
-    </section>
+  function onMove(e) {
+    const r = rect();
+    const cx = (e.clientX ?? e.touches?.[0]?.clientX) - r.left;
+    const cy = (e.clientY ?? e.touches?.[0]?.clientY) - r.top;
+    const px = (cx / r.width) * 2 - 1;
+    const py = (cy / r.height) * 2 - 1;
+    tx = -py * maxTilt;
+    ty = px * maxTilt;
+    if (!raf) raf = requestAnimationFrame(update);
+  }
 
-    <!-- CTA Section -->
-    <section class="cta section">
-      <div class="container text-center reveal" data-anim="fade-up">
-        <h2>Want a detailed comparison?</h2>
-        <p class="muted">See specifications, pricing, and features side by side.</p>
-        <button class="btn primary" id="toCompare">Go for Detailed Comparison →</button>
-      </div>
-    </section>
-  </div>
+  function onLeave() {
+    tx = 0;
+    ty = 0;
+    if (!raf) raf = requestAnimationFrame(update);
+  }
 
-  <script>
-    document.getElementById("backHome")?.addEventListener("click", () => {
-      window.location.href = "/";
-    });
+  el.addEventListener("mousemove", onMove);
+  el.addEventListener("mouseleave", onLeave);
+  el.addEventListener("touchmove", onMove, { passive: true });
+  el.addEventListener("touchend", onLeave);
+}
 
-    document.getElementById("toCompare")?.addEventListener("click", () => {
-      window.location.href = "/compare";
-    });
-  </script>
-</body>
-</html>
+document.querySelectorAll(".tilt").forEach((el) => attachTilt(el));
