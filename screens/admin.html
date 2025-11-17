@@ -11,179 +11,297 @@
   <script type="module" src="/screens/admin.js" defer></script>
 
   <style>
+    /* GLOBAL */
     body {
-      background: #f7f8fa;
+      background: #f7f9fc;
       color: #1e293b;
       font-family: 'Inter', sans-serif;
       margin: 0;
       overflow-x: hidden;
     }
 
+    /* NAVBAR */
     .nav {
-      width: 100%;
       position: fixed;
       top: 0;
-      z-index: 1000;
+      width: 100%;
       background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid #e2e8f0;
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid #e5e7eb;
+      z-index: 1000;
     }
 
     .nav-inner {
-      padding: 14px 24px;
-      max-width: 1200px;
+      display: flex;
+      align-items: center;
+      max-width: 1250px;
       margin: auto;
+      padding: 16px 28px;
     }
 
     .btn {
       background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
+      color: white;
+      padding: 10px 20px;
       border-radius: 10px;
+      border: none;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: 0.2s ease;
     }
+    .btn:hover { background: #d82d4c; }
 
-    .btn:hover {
-      background: #d82d4c;
-    }
-
+    /* ADMIN ROOT */
     .admin-root {
-      max-width: 1200px;
-      margin: 120px auto 80px;
-      padding: 0 20px;
+      max-width: 1250px;
+      margin: 130px auto 60px;
+      padding: 0 24px;
     }
 
     .admin-title {
-      font-size: 1.8rem;
+      font-size: 2.1rem;
       font-weight: 800;
+      margin-bottom: 12px;
     }
 
+    .admin-subtitle {
+      color: #64748b;
+      margin-bottom: 30px;
+    }
+
+    /* SUMMARY CARDS */
     .cards {
       display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 18px;
+      margin-bottom: 30px;
     }
 
     .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
       flex: 1;
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+      text-align: center;
     }
 
-    .number { font-size: 28px; font-weight: 800; }
+    .card .number {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #111827;
+    }
 
+    .card .label {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    /* CHART CARD */
     .chart-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
+      background: white;
+      border-radius: 14px;
+      padding: 26px;
+      margin-bottom: 30px;
       display: flex;
-      gap: 20px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-      margin-bottom: 24px;
+      gap: 28px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
     }
 
     .chart-area {
       flex: 1;
-      height: 360px;
+      height: 380px;
+    }
+
+    .chart-side {
+      width: 280px;
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
     }
 
     .aggregates-list {
       list-style: none;
-      margin: 0;
       padding: 0;
     }
 
     .aggregates-list li {
       background: #f1f5f9;
-      padding: 8px 10px;
-      border-radius: 8px;
-      margin-bottom: 6px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      font-size: 0.94rem;
+      line-height: 1.3rem;
+    }
+
+    /* SUBMISSIONS TABLE */
+    .submissions-card {
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+    }
+
+    .submissions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .submissions-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 10px 8px;
+      padding: 12px 10px;
       border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
     }
 
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    td button {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .view-btn {
+      background: #0ea5a3;
+      color: white;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+      color: white;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* TABLE EMPTY STATE */
+    #tableEmpty {
+      padding: 22px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    /* MODAL */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.45);
       display: none;
       justify-content: center;
       align-items: center;
+      z-index: 2000;
     }
 
     .modal {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
+      background: white;
+      padding: 28px;
+      border-radius: 16px;
+      width: 96%;
       max-width: 900px;
-      width: 95%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
     }
 
+    .modal h3 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .modal-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .modal-field {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .cards { flex-direction: column; }
+      .chart-card { flex-direction: column; }
+      .chart-side { width: 100%; }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- Navigation -->
+  <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
       <button class="btn" id="backHome" style="background:#64748b;">← Back to Home</button>
     </div>
   </nav>
 
-  <!-- Admin Content -->
+  <!-- CONTENT -->
   <div class="admin-root">
 
     <div class="admin-title">Admin Dashboard</div>
+    <div class="admin-subtitle">Overview of survey submissions & aggregated results</div>
 
+    <!-- SUMMARY CARDS -->
     <div class="cards">
       <div class="card">
         <div class="number" id="totalSubmissions">0</div>
-        <div>Total Submissions</div>
+        <div class="label">Total Submissions</div>
       </div>
-
       <div class="card">
         <div class="number" id="uniqueEmails">—</div>
-        <div>Unique Emails</div>
+        <div class="label">Unique Emails</div>
       </div>
-
       <div class="card">
         <div class="number" id="questionsAnswered">0</div>
-        <div>Questions Answered (avg)</div>
+        <div class="label">Questions Answered (avg)</div>
       </div>
     </div>
 
+    <!-- CHART -->
     <div class="chart-card">
       <div class="chart-area">
         <canvas id="groupedChart"></canvas>
       </div>
 
-      <div>
-        <h3>Means by Question</h3>
+      <div class="chart-side">
+        <div class="chart-title">Means by Question</div>
         <ul class="aggregates-list" id="aggregatesList"></ul>
       </div>
     </div>
 
+    <!-- SUBMISSIONS -->
     <div class="submissions-card">
-      <h3>Submissions</h3>
-      <button id="exportCsv" class="btn">Export CSV</button>
+      <div class="submissions-header">
+        <h3>Submissions</h3>
+        <button id="exportCsv" class="btn">Export CSV</button>
+      </div>
 
       <table id="submissionsTable">
         <thead>
@@ -200,19 +318,16 @@
         <tbody></tbody>
       </table>
 
-      <div id="tableEmpty" style="display:none; padding:20px; text-align:center; color:#64748b;">
-        No submissions yet.
-      </div>
+      <div id="tableEmpty">No submissions yet.</div>
     </div>
-
   </div>
 
-  <!-- Modal -->
+  <!-- MODAL -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
       <h3 id="modalTitle"></h3>
       <div id="modalContent"></div>
-      <button id="closeModal" class="btn" style="margin-top:20px;">Close</button>
+      <button class="btn" id="closeModal" style="margin-top:20px;">Close</button>
     </div>
   </div>
 
