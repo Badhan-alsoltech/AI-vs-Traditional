@@ -2,7 +2,7 @@
 // Admin Dashboard — Updated
 // =========================
 
-// === Updated Question Sets ===
+// === QUESTION SETS (Updated) ===
 const QUESTIONS = {
   awareness: [
     "The AI-designed mug appears to be visually creative and modern.",
@@ -30,8 +30,10 @@ const QUESTIONS = {
   ]
 };
 
+// Global
 let aggregatedData = null;
 let submissions = [];
+
 
 // =========================
 // LOAD DASHBOARD DATA
@@ -48,9 +50,11 @@ async function loadData() {
     renderChart();
     renderTable();
   } catch (err) {
+    console.error(err);
     alert("Failed to load admin data");
   }
 }
+
 
 // =========================
 // METRIC CARDS UPDATE
@@ -60,6 +64,7 @@ function updateMetrics() {
   document.getElementById("uniqueEmails").textContent = "—";
   document.getElementById("questionsAnswered").textContent = "All";
 }
+
 
 // =========================
 // CHART RENDERING
@@ -76,9 +81,21 @@ function renderChart() {
   ];
 
   const datasets = [
-    { label: "Awareness", data: aggregatedData.awareness, backgroundColor: "#3b82f6" },
-    { label: "Prague WTP", data: aggregatedData.prague_wtp, backgroundColor: "#f59e0b" },
-    { label: "New York WTP", data: aggregatedData.newyork_wtp, backgroundColor: "#10b981" }
+    {
+      label: "Awareness",
+      data: aggregatedData.awareness,
+      backgroundColor: "#3b82f6"
+    },
+    {
+      label: "Prague WTP",
+      data: aggregatedData.prague_wtp,
+      backgroundColor: "#f59e0b"
+    },
+    {
+      label: "New York WTP",
+      data: aggregatedData.newyork_wtp,
+      backgroundColor: "#10b981"
+    }
   ];
 
   if (groupedChart) groupedChart.destroy();
@@ -89,19 +106,31 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: { y: { min: 0, max: 5 } }
+      scales: {
+        y: { min: 0, max: 5 }
+      }
     }
   });
 
+  populateMeanList();
+}
+
+
+// =========================
+// AGGREGATE LIST (Right side)
+// =========================
+function populateMeanList() {
   const list = document.getElementById("aggregatesList");
   list.innerHTML = "";
 
   aggregatedData.awareness.forEach((v, i) =>
     appendList(list, `Awareness Q${i + 1}: ${v}`)
   );
+
   aggregatedData.prague_wtp.forEach((v, i) =>
     appendList(list, `Prague Q${i + 1}: ${v}`)
   );
+
   aggregatedData.newyork_wtp.forEach((v, i) =>
     appendList(list, `New York Q${i + 1}: ${v}`)
   );
@@ -112,6 +141,7 @@ function appendList(list, text) {
   li.textContent = text;
   list.appendChild(li);
 }
+
 
 // =========================
 // TABLE RENDERING
@@ -146,8 +176,9 @@ function renderTable() {
   );
 }
 
+
 // =========================
-// MODAL VIEW
+// MODAL VIEW — FULL DETAILS
 // =========================
 async function showModal(id) {
   const res = await fetch(`/api/admin/response/${id}`);
@@ -156,6 +187,7 @@ async function showModal(id) {
   const container = document.getElementById("modalContent");
   container.innerHTML = "";
 
+  // DEMOGRAPHICS
   appendSection(container, "Section 1: Demographics");
   addField(container, "Age", data.age);
   addField(container, "Gender", data.gender);
@@ -165,31 +197,37 @@ async function showModal(id) {
   addField(container, "Country", data.country);
   addField(container, "AI Familiarity", data.ai_knowledge);
 
+  // AWARENESS (8)
   appendSection(container, "Section 2: Awareness");
-  QUESTIONS.awareness.forEach((q, i) =>
-    addQuestion(container, i + 1, q, data[`awareness${i + 1}`])
-  );
+  QUESTIONS.awareness.forEach((q, i) => {
+    addQuestion(container, i + 1, q, data[`awareness${i + 1}`]);
+  });
 
-  appendSection(container, "Section 3A: Prague – WTP");
-  QUESTIONS.prague_wtp.forEach((q, i) =>
-    addQuestion(container, i + 1, q, data[`prague_wtp${i + 1}`])
-  );
-  addField(container, "Prague – AI Price", data.prague_ai_price);
-  addField(container, "Prague – Human Price", data.prague_human_price);
+  // PRAGUE WTP (4)
+  appendSection(container, "Section 3A: Prague — WTP");
+  QUESTIONS.prague_wtp.forEach((q, i) => {
+    addQuestion(container, i + 1, q, data[`prague_wtp${i + 1}`]);
+  });
 
-  appendSection(container, "Section 3B: New York – WTP");
-  QUESTIONS.newyork_wtp.forEach((q, i) =>
-    addQuestion(container, i + 1, q, data[`newyork_wtp${i + 1}`])
-  );
-  addField(container, "New York – AI Price", data.newyork_ai_price);
-  addField(container, "New York – Human Price", data.newyork_human_price);
+  addField(container, "Prague AI Price", data.prague_ai_price);
+  addField(container, "Prague Human Price", data.prague_human_price);
+
+  // NEW YORK WTP (4)
+  appendSection(container, "Section 3B: New York — WTP");
+  QUESTIONS.newyork_wtp.forEach((q, i) => {
+    addQuestion(container, i + 1, q, data[`newyork_wtp${i + 1}`]);
+  });
+
+  addField(container, "New York AI Price", data.newyork_ai_price);
+  addField(container, "New York Human Price", data.newyork_human_price);
 
   document.getElementById("modalTitle").textContent = "Submission Details";
   document.getElementById("modalBackdrop").style.display = "flex";
 }
 
+// Helpers
 function appendSection(c, title) {
-  c.innerHTML += `<h3 style="margin-top:20px;">${title}</h3>`;
+  c.innerHTML += `<div class="modal-section"><h3>${title}</h3></div>`;
 }
 
 function addField(c, label, value) {
@@ -197,10 +235,19 @@ function addField(c, label, value) {
 }
 
 function addQuestion(c, num, text, val) {
-  const labels = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
-  const meaning = val ? labels[val - 1] : "—";
-  c.innerHTML += `<p><strong>Q${num}.</strong> ${text}<br>Response: ${val ?? "—"} (${meaning})</p>`;
+  const meaningLabels = [
+    "Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"
+  ];
+  const meaning = val ? meaningLabels[val - 1] : "—";
+
+  c.innerHTML += `
+    <p>
+      <strong>Q${num}.</strong> ${text}<br>
+      <em>Response:</em> ${val ?? "—"} (${meaning})
+    </p>
+  `;
 }
+
 
 // =========================
 // EXPORT CSV
@@ -209,7 +256,10 @@ document.getElementById("exportCsv").onclick = () => {
   window.location.href = "/api/admin/export";
 };
 
-// CLOSE MODAL
+
+// =========================
+// MODAL CLOSE
+// =========================
 document.getElementById("closeModal").onclick = () => {
   document.getElementById("modalBackdrop").style.display = "none";
 };
@@ -220,5 +270,8 @@ document.getElementById("modalBackdrop").onclick = (e) => {
   }
 };
 
+
+// =========================
 // INIT
+// =========================
 loadData();
