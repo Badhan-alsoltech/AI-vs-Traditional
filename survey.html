@@ -7,145 +7,46 @@
   <title>Survey Questionnaire – Human vs AI</title>
 
   <link rel="stylesheet" href="/screens/styles.css" />
-  <script type="module" src="/screens/survey.js" defer></script>
+  <script src="/screens/survey.js" defer></script>
 
   <style>
-    body {
-      background: #f8fafc;
-      color: #1e293b;
-      font-family: "Inter", sans-serif;
-      margin: 0;
+    body { background:#f8fafc; color:#1e293b; font-family:"Inter",sans-serif; margin:0; }
+    .nav { position:fixed; top:0; width:100%; z-index:100; background:rgba(255,255,255,0.9);
+           border-bottom:1px solid #e2e8f0; backdrop-filter:blur(8px); }
+    .nav-inner { padding:14px 24px; max-width:1100px; margin:auto; }
+    .btn { background:#e94057; color:#fff; padding:10px 18px; border-radius:10px; border:none;
+           cursor:pointer; font-weight:600; }
+    .btn:hover { background:#d82d4c; }
+
+    .survey-header { text-align:center; margin-top:100px; margin-bottom:28px; }
+    .survey-header h1 { font-size:2.2rem; font-weight:800; margin-bottom:6px; }
+
+    form { max-width:980px; background:#fff; border-radius:12px;
+           padding:32px 36px; margin:28px auto 60px; box-shadow:0 8px 30px rgba(0,0,0,0.05); }
+
+    section.question-group { margin-bottom:34px; }
+    section h2 { border-left:6px solid #e94057; padding-left:10px; font-size:1.25rem; margin-bottom:14px; }
+
+    label { font-weight:600; display:block; margin-bottom:8px; }
+    input[type="text"], input[type="number"] {
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;
+      background:#fbfdff; margin-bottom:14px; box-sizing:border-box;
     }
 
-    .nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-      background: rgba(255,255,255,0.9);
-      border-bottom: 1px solid #e2e8f0;
-      backdrop-filter: blur(12px);
-    }
+    .radio-group { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .radio-group label { padding:8px 12px; background:#f8fafc; border-radius:8px; cursor:pointer; }
+    .rating-scale { display:flex; gap:6px; margin-bottom:10px; }
+    .rating-scale label { flex:1; background:#f8fafc; padding:8px 6px; border-radius:6px; text-align:center; }
 
-    .nav-inner {
-      display: flex;
-      justify-content: flex-start;
-      padding: 14px 24px;
-      max-width: 1100px;
-      margin: auto;
-    }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .text-center { text-align:center; }
 
-    .btn {
-      background: #e94057;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .btn:hover { background: #d82d4c; }
+    .thankyou { text-align:center; padding:60px 20px; display:none; }
+    .thankyou.active { display:block; }
 
-    .survey-header {
-      text-align: center;
-      margin-top: 120px;
-      margin-bottom: 40px;
-    }
-
-    .survey-header h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-    .survey-header p { color: #64748b; }
-
-    form {
-      max-width: 1000px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-      padding: 40px 50px;
-      margin: 40px auto;
-    }
-
-    section.question-group {
-      margin-bottom: 50px;
-    }
-
-    section h2 {
-      font-size: 1.6rem;
-      margin-bottom: 20px;
-      border-left: 6px solid #e94057;
-      padding-left: 10px;
-      color: #0f172a;
-    }
-
-    label { font-weight: 500; display:block; margin-bottom:6px; }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      background: #f9fafb;
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
-
-    input[type="number"] {
-      appearance: textfield;
-      -moz-appearance: textfield;
-    }
-
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    .radio-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .radio-group label {
-      background: #f1f5f9;
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      cursor: pointer;
-    }
-    .radio-group label:hover {
-      border-color: #e94057;
-      background: #fff;
-    }
-    .radio-group input { accent-color: #e94057; }
-
-    .scale-note { font-size: 0.9rem; color: #64748b; margin-bottom: 10px; }
-
-    .rating-scale {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 16px;
-    }
-    .rating-scale label { text-align: center; font-size: 0.9rem; }
-
-    .thankyou {
-      text-align: center;
-      padding: 80px 20px;
-      display: none;
-    }
-    .thankyou.active {
-      display: block;
-      animation: fade-in 0.6s ease both;
-    }
-
-    @keyframes fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @media(max-width:760px){
+      .two-col{ grid-template-columns:1fr; }
+      form{ padding:20px; margin:20px; }
     }
   </style>
 </head>
@@ -163,12 +64,13 @@
   </div>
 
   <form id="surveyForm">
-    <!-- Demographics -->
+
+    <!-- Section 1: Demographics -->
     <section class="question-group">
       <h2>Section 1: Demographics</h2>
 
       <label>Age</label>
-      <input type="number" name="age" min="0" step="1" inputmode="numeric" required />
+      <input type="number" name="age" required />
 
       <label>Gender</label>
       <div class="radio-group">
@@ -183,8 +85,6 @@
         <label><input type="radio" name="education" value="High School" required> High School</label>
         <label><input type="radio" name="education" value="Undergraduate"> Undergraduate</label>
         <label><input type="radio" name="education" value="Graduate"> Graduate</label>
-        <label><input type="radio" name="education" value="Postgraduate"> Postgraduate</label>
-        <label><input type="radio" name="education" value="Other"> Other</label>
       </div>
 
       <label>Occupation</label>
@@ -192,14 +92,19 @@
 
       <label>Monthly Income</label>
       <div class="radio-group">
-        <label><input type="radio" name="income" value="< $500" required> &lt; $500</label>
-        <label><input type="radio" name="income" value="$500–$1000"> $500–$1000</label>
-        <label><input type="radio" name="income" value="$1000–$2000"> $1000–$2000</label>
-        <label><input type="radio" name="income" value="> $2000"> &gt; $2000</label>
+        <label><input type="radio" name="income" value="< $500" required> &lt;$500</label>
+        <label><input type="radio" name="income" value="$1000-$1500"> $1000–$1500</label>
+        <label><input type="radio" name="income" value="$2000-$2500"> $2000–$2500</label>
+        <label><input type="radio" name="income" value="> $3000"> &gt;$3000</label>
       </div>
 
       <label>Country of Residence</label>
-      <input type="text" name="country" placeholder="e.g., Czech Republic, Kazakhstan" required />
+      <div class="radio-group">
+        <label><input type="radio" name="country" value="Czech Republic" required> Czech Republic</label>
+        <label><input type="radio" name="country" value="Kazakhstan"> Kazakhstan</label>
+        <label><input type="radio" name="country" value="Other"> Other</label>
+        <input type="text" name="countryOther" placeholder="If Other, specify">
+      </div>
 
       <label>How familiar are you with Artificial Intelligence (AI)?</label>
       <div class="radio-group">
@@ -211,41 +116,47 @@
       </div>
     </section>
 
-    <!-- Dynamic sections -->
+    <!-- Section 2 -->
     <section class="question-group">
       <h2>Section 2: Awareness & Perceptions</h2>
       <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
-      <div id="awareness"></div>
+      <div id="awarenessContainer"></div>
     </section>
 
+    <!-- WTP Prague -->
     <section class="question-group">
-      <h2>Section 3: Preferences & Attitudes</h2>
-      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
-      <div id="preferences"></div>
-    </section>
+      <h2>Section 3: Willingness to Pay (Prague)</h2>
+      <div id="pragueWtpContainer"></div>
 
-    <section class="question-group">
-      <h2>Section 4: Willingness to Pay (WTP)</h2>
-      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
-      <div id="wtp"></div>
-
-      <label>Maximum Willingness to Pay (in local currency)</label>
-      <div style="display:flex;gap:20px;">
-        <div style="flex:1;">
-          <label>AI-designed mug</label>
-          <input type="number" name="aiMugPrice" min="0" step="any" inputmode="decimal" required />
+      <label>Maximum Price (Prague)</label>
+      <div class="two-col">
+        <div>
+          <label>Human-Designed</label>
+          <input type="number" name="prague_human_price" required />
         </div>
-        <div style="flex:1;">
-          <label>Human-designed mug</label>
-          <input type="number" name="humanMugPrice" min="0" step="any" inputmode="decimal" required />
+        <div>
+          <label>AI-Designed</label>
+          <input type="number" name="prague_ai_price" required />
         </div>
       </div>
     </section>
 
+    <!-- WTP New York -->
     <section class="question-group">
-      <h2>Section 5: Comparative Analysis</h2>
-      <p class="scale-note">Scale: 1 – Strongly Disagree → 5 – Strongly Agree</p>
-      <div id="comparative"></div>
+      <h2>Section 4: Willingness to Pay (New York)</h2>
+      <div id="newyorkWtpContainer"></div>
+
+      <label>Maximum Price (New York)</label>
+      <div class="two-col">
+        <div>
+          <label>Human-Designed</label>
+          <input type="number" name="newyork_human_price" required />
+        </div>
+        <div>
+          <label>AI-Designed</label>
+          <input type="number" name="newyork_ai_price" required />
+        </div>
+      </div>
     </section>
 
     <div class="text-center">
@@ -255,17 +166,7 @@
 
   <div class="thankyou" id="thankYou">
     <h2>🎉 Thank you for completing the survey!</h2>
-    <p>Your feedback helps us understand the balance between AI and human creativity.</p>
     <button class="btn" id="goHome">Return to Home</button>
   </div>
-
-  <script>
-    // Prevent accidental number input scrolling
-    document.addEventListener("wheel", e => {
-      if (document.activeElement.type === "number") {
-        document.activeElement.blur();
-      }
-    }, { passive: false });
-  </script>
 </body>
 </html>
