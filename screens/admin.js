@@ -197,12 +197,6 @@ async function showModal(id) {
   addField(container, "Country", data.country);
   addField(container, "AI Familiarity", data.ai_knowledge);
 
-  // AWARENESS (8)
-  appendSection(container, "Section 2: Awareness");
-  QUESTIONS.awareness.forEach((q, i) => {
-    addQuestion(container, i + 1, q, data[`awareness${i + 1}`]);
-  });
-
   // PRAGUE WTP (4)
   appendSection(container, "Section 3A: Prague — WTP");
   QUESTIONS.prague_wtp.forEach((q, i) => {
@@ -275,3 +269,4 @@ document.getElementById("modalBackdrop").onclick = (e) => {
 // INIT
 // =========================
 loadData();
+
